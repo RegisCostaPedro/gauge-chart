@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      //   const chartWidth =
+      //     document.querySelector(".container").getBoundingClientRect().height -
+      //     250;
+
+      const ctx = document.getElementById("myChart").getContext("2d");
+      const gradientSegment = ctx.createLinearGradient(0, 0, 200, 0);
+      gradientSegment.addColorStop(0, "#219900");
+      gradientSegment.addColorStop(0.7, "#B0B033");
+      gradientSegment.addColorStop(1, "#FF0000");
+
+      // gauche chart Text plugin block
+
+      const gaugeCharText = {
+        id: "gaugeChartText",
+        afterDatasetsDraw(chart, args, pluginOptions) {
+          const {
+            ctx,
+            data,
+            chartArea: { top, bottom, left, right, width, height },
+            scales: { r },
+          } = chart;
+
+          ctx.save();
+          const xCord = chart.getDatasetMeta(0).data[0].x;
+          const yCord = chart.getDatasetMeta(0).data[0].y;
+          const score = data.datasets[0].data[0];
+          const maxScore = data.datasets[0].data[1];
+
+          let rating;
+
+          if (score < 600) {
+            rating = "Bad";
+          } else if (score < 700) {
+            rating = "Fair";
+          } else if (score < 850) {
+            rating = "Good";
+          } else {
+            rating = "Very Good";
+          }
+          function textLabel(text, x, y, fontSize, textBaseLine, textAlign) {
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.fillStyle = "#000";
+            ctx.textBaseline = textBaseLine;
+            ctx.textAlign = textAlign;
+            ctx.fillText(text, x, y);
+          }
+
+          textLabel("0", left, yCord + 5, 20, "top", "left");
+          textLabel(maxScore, right, yCord + 5, 20, "top", "right"); // colocar o valor máximo adquirido
+          textLabel(score, xCord, yCord - 30, 60, "bottom", "center"); // colocar a quantidade atual
+          textLabel(rating, xCord, yCord, 20, "bottom", "center"); // legenda
+        },
+      };
+
+      // config
+      new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Utilizado", "Restante"],
+          datasets: [
+            {
+              data: [400, 800],
+              backgroundColor: [gradientSegment, "rgba(199, 199, 199, 1)"],
+              borderColor: gradientSegment,
+              borderWidth: 1,
+              cutout: "90%",
+              circumference: 180,
+              rotation: 270,
+            },
+          ],
+        },
+        options: {
+          aspectRatio: 1.5,
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              enabled: true,
+            },
+          },
+        },
+        plugins: [gaugeCharText],
+      });
+    </script>
+  </body>
+</html>
